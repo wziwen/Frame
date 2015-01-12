@@ -6,6 +6,7 @@ import java.util.List;
 import com.wenziwen.framer.Frame.Target;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ public class MainActivity extends Activity {
 	private List<Frame> mFrameList;
 	private FrameImageView mImageView;
 	private int mCurrentIndex = 0;
+	private int SCREEN_WIDTH = 0;
+	private int SCREEN_HEIGHT = 0;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -31,6 +34,11 @@ public class MainActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 			    WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_main);
+		
+		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		SCREEN_WIDTH = wm.getDefaultDisplay().getWidth();
+		SCREEN_HEIGHT = wm.getDefaultDisplay().getHeight();
+		
 		mImageView = (FrameImageView) findViewById(R.id.imageView);
 		mImageView.setOnTouchListener(mOnTouchListener);
 		parseXml();
@@ -95,8 +103,18 @@ public class MainActivity extends Activity {
 		Log.d(TAG, "change bitmap: index = " + mCurrentIndex);
 		Bitmap bm = BitmapFactory.decodeFile("/sdcard/frame/" + mFrameList.get(mCurrentIndex).fileName + ".png");
 		Target[] array = new Target[mFrameList.get(mCurrentIndex).targets.size()];
-		mImageView.setTargets(mFrameList.get(mCurrentIndex).targets.toArray(array));
+		
+		if (mFrameList.get(mCurrentIndex).targets != null) {
+			for (int i=0; i<mFrameList.get(mCurrentIndex).targets.size(); i++) {
+				mFrameList.get(mCurrentIndex).targets.get(i).left = getNewX(mFrameList.get(mCurrentIndex).targets.get(i).left, bm);
+				mFrameList.get(mCurrentIndex).targets.get(i).top = getNewY(mFrameList.get(mCurrentIndex).targets.get(i).top, bm);
+				mFrameList.get(mCurrentIndex).targets.get(i).width = getNewX(mFrameList.get(mCurrentIndex).targets.get(i).width, bm);
+				mFrameList.get(mCurrentIndex).targets.get(i).height = getNewY(mFrameList.get(mCurrentIndex).targets.get(i).height, bm);
+			}
+		}
+		
 		mImageView.setImageBitmap(bm);
+		mImageView.setTargets(mFrameList.get(mCurrentIndex).targets.toArray(array));
 	}
 	
 	private boolean isPointInTarget(float posX, float posY, Target target) {
@@ -105,6 +123,14 @@ public class MainActivity extends Activity {
 			return true;
 		}
 		return false;
+	}
+	
+	private int getNewX(int oldX, Bitmap bm) {
+		return oldX * SCREEN_WIDTH / bm.getWidth();
+	}
+	
+	private int getNewY(int oldY, Bitmap bm) {
+		return oldY * SCREEN_HEIGHT  / bm.getHeight();
 	}
 	
 }

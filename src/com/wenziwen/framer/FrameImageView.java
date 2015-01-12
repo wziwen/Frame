@@ -3,14 +3,17 @@ package com.wenziwen.framer;
 import com.wenziwen.framer.Frame.Target;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 public class FrameImageView extends ImageView {
 	private Target[] mTargets = null;
+	private Bitmap mBitmap;
 	public FrameImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
@@ -33,4 +36,12 @@ public class FrameImageView extends ImageView {
 	public void setTargets(Target[] targets) {
 		mTargets = targets;
 	}
+	
+	@Override
+	public void setImageBitmap(Bitmap bm) {
+		mBitmap = bm;
+		super.setImageBitmap(bm);
+	}
+	
+	
 }
